@@ -150,13 +150,15 @@ public class HlsDownload extends AbstractDownload {
             List<TrackData> tracks = mediaPlaylist.getTracks();
             for (TrackData trackData : tracks) {
                 String uri = trackData.getUri();
+                lsp.totalDuration += trackData.getTrackInfo().duration;
+                lsp.lastSegDuration = trackData.getTrackInfo().duration;
                 if(!uri.startsWith("http")) {
                     String _url = segmentsUrl.toString();
                     _url = _url.substring(0, _url.lastIndexOf('/') + 1);
                     String segmentUri = _url + uri;
-                    lsp.totalDuration += trackData.getTrackInfo().duration;
-                    lsp.lastSegDuration = trackData.getTrackInfo().duration;
                     lsp.segments.add(segmentUri);
+                } else {
+                    lsp.segments.add(uri);
                 }
             }
             return lsp;
@@ -179,6 +181,8 @@ public class HlsDownload extends AbstractDownload {
                 _masterUrl = _masterUrl.substring(0, _masterUrl.lastIndexOf('/') + 1);
                 String segmentUri = _masterUrl + uri;
                 return segmentUri;
+            } else {
+                return uri;
             }
         }
         return null;
