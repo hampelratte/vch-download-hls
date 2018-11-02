@@ -4,7 +4,7 @@
     <artifactId>download.hls</artifactId>
     <packaging>bundle</packaging>
     <name>VCH HTTP Live Streaming Download Support</name>
-    <version>1.0.2</version>
+    <version>1.0.3-SNAPSHOT</version>
     <description>Adds support for HLS downloads</description>
 
     <parent>
