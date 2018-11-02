@@ -16,6 +16,7 @@ import org.osgi.service.log.LogService;
 import com.iheartradio.m3u8.Encoding;
 import com.iheartradio.m3u8.Format;
 import com.iheartradio.m3u8.ParseException;
+import com.iheartradio.m3u8.ParsingMode;
 import com.iheartradio.m3u8.PlaylistException;
 import com.iheartradio.m3u8.PlaylistParser;
 import com.iheartradio.m3u8.data.MasterPlaylist;
@@ -178,10 +179,11 @@ public class HlsDownload extends AbstractDownload {
         logger.log(LogService.LOG_DEBUG, "Downloading master playlist " + url);
         URL masterUrl = new URL(url);
         InputStream inputStream = masterUrl.openStream();
-        PlaylistParser parser = new PlaylistParser(inputStream, Format.EXT_M3U, Encoding.UTF_8);
+        PlaylistParser parser = new PlaylistParser(inputStream, Format.EXT_M3U, Encoding.UTF_8, ParsingMode.LENIENT);
         Playlist playlist = parser.parse();
         if(playlist.hasMasterPlaylist()) {
             MasterPlaylist master = playlist.getMasterPlaylist();
+            System.out.println(master.getPlaylists());
             PlaylistData bestQuality = getBestQualityStream(master.getPlaylists());
             String uri = bestQuality.getUri();
             if(!uri.startsWith("http")) {
