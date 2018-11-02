@@ -76,22 +76,30 @@ public class HlsDownload extends AbstractDownload {
                         return;
                     }
 
-                    URL url = new URL(segment);
-                    in = new SpeedometerInputStream(url.openStream());
-                    try {
-                        byte[] b = new byte[1024];
-                        int length = -1;
-                        while( (length = in.read(b)) >= 0 ) {
-                            out.write(b, 0, length);
-                            speed = in.getSpeed();
+                    // try to download segment. at max 2 retries
+                    for (int j = 0; j < 3; j++) {
+                        try {
+                            URL url = new URL(segment);
+                            in = new SpeedometerInputStream(url.openStream());
+                            byte[] b = new byte[1024];
+                            int length = -1;
+                            while( (length = in.read(b)) >= 0 ) {
+                                out.write(b, 0, length);
+                                speed = in.getSpeed();
+                            }
+                            break;
+                        } catch(Exception e) {
+                            if(j == 2) {
+                                logger.log(LogService.LOG_ERROR, "Downloading segment " + currentSegment + " finally failed", e);
+                            } else {
+                                logger.log(LogService.LOG_DEBUG, "Downloading segment " + currentSegment + " failed. Retrying...");
+                            }
+                        } finally {
+                            in.close();
                         }
-                        currentSegment++;
-                        progress = (int) (currentSegment / totalSegments * 100);
-                    } catch(Exception e) {
-                        logger.log(LogService.LOG_ERROR, "Error while downloading segment", e);
-                    } finally {
-                        in.close();
                     }
+                    currentSegment++;
+                    progress = (int) (currentSegment / totalSegments * 100);
                 }
                 setStatus(Status.FINISHED);
             } else {
