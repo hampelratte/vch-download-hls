@@ -28,6 +28,12 @@ public class HlsDownloadFactory implements DownloadFactory {
 
     private boolean valid = false;
 
+    private static final String[] ACCEPTED_MIME_TYPES = {
+            "application/vnd.apple.mpegurl",
+            "application/x-mpegurl",
+            "audio/x-mpegurl"
+    };
+
     public HlsDownloadFactory(LogService logger) {
         this.logger = logger;
     }
@@ -44,8 +50,13 @@ public class HlsDownloadFactory implements DownloadFactory {
                         return accept(video);
                     }
                     if(header.containsKey("Content-Type")) {
-                        String contentType = header.get("Content-Type").get(0);
-                        return contentType.equals("application/vnd.apple.mpegurl") || contentType.equals("application/x-mpegURL");
+                        String contentType = header.get("Content-Type").get(0).toLowerCase();
+                        for (String mimeType : ACCEPTED_MIME_TYPES) {
+                            if(contentType.contains(mimeType)) {
+                                return true;
+                            }
+                        }
+                        return false;
                     }
                 } catch (IOException e) {
                     logger.log(LogService.LOG_ERROR, "Couldn't execute HEAD request", e);
